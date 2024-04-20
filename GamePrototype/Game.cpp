@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Game.h"
 
+#include "Player.h"
+#include "Bullet.h"
+
 Game::Game( const Window& window ) 
 	:BaseGame{ window }
 {
@@ -14,75 +17,69 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
-	
+	m_Player = new Player();
 }
 
 void Game::Cleanup( )
 {
+	delete m_Player;
+	delete m_Bullet;
 }
 
 void Game::Update( float elapsedSec )
 {
-	// Check keyboard state
-	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
-	//if ( pStates[SDL_SCANCODE_RIGHT] )
-	//{
-	//	std::cout << "Right arrow key is down\n";
-	//}
-	//if ( pStates[SDL_SCANCODE_LEFT] && pStates[SDL_SCANCODE_UP])
-	//{
-	//	std::cout << "Left and up arrow keys are down\n";
-	//}
+	m_Player->Update(elapsedSec);
+	if (m_HasShot)	m_Bullet->Update(elapsedSec);
 }
 
 void Game::Draw( ) const
 {
 	ClearBackground( );
+
+	m_Player->Draw();
+	if (m_HasShot)	m_Bullet->Draw();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
-	//std::cout << "KEYDOWN event: " << e.keysym.sym << std::endl;
+	m_Player->ProcessKeyDownEvent(e);
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 {
-	//std::cout << "KEYUP event: " << e.keysym.sym << std::endl;
-	//switch ( e.keysym.sym )
-	//{
-	//case SDLK_LEFT:
-	//	//std::cout << "Left arrow key released\n";
-	//	break;
-	//case SDLK_RIGHT:
-	//	//std::cout << "`Right arrow key released\n";
-	//	break;
-	//case SDLK_1:
-	//case SDLK_KP_1:
-	//	//std::cout << "Key 1 released\n";
-	//	break;
-	//}
+	m_Player->ProcessKeyUpEvent(e);
 }
 
 void Game::ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e )
 {
-	//std::cout << "MOUSEMOTION event: " << e.x << ", " << e.y << std::endl;
+	m_Player->ProcessMouseMotionEvent(e);
+	m_MousePos = Point2f{ float(e.x), float(e.y) };
 }
 
 void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 {
-	//std::cout << "MOUSEBUTTONDOWN event: ";
-	//switch ( e.button )
-	//{
-	//case SDL_BUTTON_LEFT:
-	//	std::cout << " left button " << std::endl;
-	//	break;
-	//case SDL_BUTTON_RIGHT:
-	//	std::cout << " right button " << std::endl;
-	//	break;
-	//case SDL_BUTTON_MIDDLE:
-	//	std::cout << " middle button " << std::endl;
-	//	break;
-	//}
+	float xPos{ m_MousePos.x - m_Player->GetPos().x };
+	float yPos { m_MousePos.y - m_Player->GetPos().y };
+	float mag{ CalcMagnitude() };
+	float xDir{ xPos / mag };
+	float yDir{ yPos / mag };
+
+	switch ( e.button )
+	{
+	case SDL_BUTTON_LEFT:
+		m_HasShot = true;
+		delete m_Bullet;
+		m_Bullet = new Bullet(m_Player->GetPos(), Vector2f{ xDir, yDir });
+		break;
+	/*case SDL_BUTTON_RIGHT:
+		std::cout << " right button " << std::endl;
+		break;
+	case SDL_BUTTON_MIDDLE:
+		std::cout << " middle button " << std::endl;
+		break;*/
+	default:
+		break;
+	}
 	
 }
 
@@ -105,6 +102,14 @@ void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )
 
 void Game::ClearBackground( ) const
 {
-	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
+	glClearColor( 0.0f, 0.0f, 0.f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
+}
+
+float Game::CalcMagnitude()
+{
+	float xPos{ m_MousePos.x - m_Player->GetPos().x};
+	float yPos = { m_MousePos.y - m_Player->GetPos().y };
+
+	return float(sqrt((xPos * xPos) + (yPos * yPos)));
 }

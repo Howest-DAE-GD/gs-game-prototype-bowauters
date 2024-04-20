@@ -1,5 +1,8 @@
 #pragma once
 #include "BaseGame.h"
+
+class Player;
+class Bullet;
 class Game : public BaseGame
 {
 public:
@@ -22,9 +25,18 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	//Variables
+	Player* m_Player{};
+	Bullet* m_Bullet{};
+	Point2f m_MousePos{};
+
+	bool m_HasShot{};
 
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
+	float CalcMagnitude();
+
+
 };
