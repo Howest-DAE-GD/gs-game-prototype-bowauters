@@ -23,3 +23,9 @@ void Bullet::Draw()
 	}
 	glPopMatrix();
 }
+
+Circlef Bullet::GetCircle()
+{
+	Circlef c{ m_Pos, m_Radius };
+	return c;
+}

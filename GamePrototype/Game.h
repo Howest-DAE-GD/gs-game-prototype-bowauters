@@ -1,8 +1,11 @@
 #pragma once
 #include "BaseGame.h"
 
+#include <vector>
+
 class Player;
 class Bullet;
+class Enemy;
 class Game : public BaseGame
 {
 public:
@@ -27,16 +30,21 @@ public:
 private:
 	//Variables
 	Player* m_Player{};
-	Bullet* m_Bullet{};
 	Point2f m_MousePos{};
+	Enemy* m_Enemy{};
 
-	bool m_HasShot{};
+	bool m_EnemyDead{};
+
+	std::vector<Bullet*> m_Bullets{};
+	std::vector<Enemy*> m_Enemies{};
 
 	// FUNCTIONS
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
 	float CalcMagnitude();
+	void UpdateEnemyDir(float elapsedSec);
 
-
+	void CheckHit();
+	void AddBalloons(int amount);
 };

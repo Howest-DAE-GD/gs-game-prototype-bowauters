@@ -9,12 +9,13 @@ public:
 
 	void Update(float elapsedSec);
 	void Draw();
-
+	Circlef GetCircle();
 
 private:
 	Point2f m_Pos;
 	Vector2f m_DirectionVector;
 
 	float m_Speed;
+	float m_Radius{ 10.f };
 };
 

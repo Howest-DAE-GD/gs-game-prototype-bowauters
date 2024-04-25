@@ -15,6 +15,9 @@ public:
 	void ProcessMouseMotionEvent(const SDL_MouseMotionEvent& e);
 
 	const Point2f& GetPos();
+	int GetHealth();
+	Circlef GetCircle();
+	void GotHit();
 
 
 private:
@@ -24,11 +27,14 @@ private:
 
 	float m_Speed;
 	float m_Angle{};
+	float m_Radius{ 20.f };
 
 	bool m_IsUp{};
 	bool m_IsDown{};
 	bool m_IsRight{};
 	bool m_IsLeft{};
+
+	int m_Health;
 
 	void ChangeDirection();
 	void CalculateAngle();

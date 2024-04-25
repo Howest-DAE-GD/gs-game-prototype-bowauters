@@ -7,7 +7,7 @@
 
 using namespace utils;
 
-Player::Player() : m_Pos{ Point2f {100.f, 100.f} }, m_Speed{ 100.f }
+Player::Player() : m_Pos{ Point2f {100.f, 100.f} }, m_Speed{ 150.f }, m_Health{ 10 }
 {}
 
 void Player::Update(float elapsedSec)
@@ -27,7 +27,7 @@ void Player::Draw()
 		glTranslatef(m_Pos.x, m_Pos.y, 0.f);
 	
 		SetColor(Color4f{ 0.f, 0.8f, 1.f, 1.f });
-		FillEllipse(0.f, 0.f, 20.f, 20.f);
+		FillEllipse(0.f, 0.f, m_Radius, m_Radius);
 
 		glRotatef(m_Angle - 90.f, 0.f, 0.f, 1.f);
 
@@ -82,6 +82,22 @@ void Player::ProcessMouseMotionEvent(const SDL_MouseMotionEvent& e)
 const Point2f& Player::GetPos()
 {
 	return m_Pos;
+}
+
+int Player::GetHealth()
+{
+	return m_Health;
+}
+
+Circlef Player::GetCircle()
+{
+	Circlef c{ m_Pos, m_Radius };
+	return c;
+}
+
+void Player::GotHit()
+{
+	m_Health -= 1;
 }
 
 void Player::ChangeDirection()
