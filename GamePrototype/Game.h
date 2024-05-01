@@ -42,7 +42,7 @@ private:
 	void Initialize();
 	void Cleanup( );
 	void ClearBackground( ) const;
-	float CalcMagnitude();
+	float CalcMagnitude(const Point2f& otherPoint);
 	void UpdateEnemyDir(float elapsedSec);
 
 	void CheckHit();

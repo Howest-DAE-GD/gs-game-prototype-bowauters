@@ -117,7 +117,7 @@ void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 {
 	float xPos{ m_MousePos.x - m_Player->GetPos().x };
 	float yPos { m_MousePos.y - m_Player->GetPos().y };
-	float mag{ CalcMagnitude() };
+	float mag{ CalcMagnitude(m_MousePos) };
 	float xDir{ xPos / mag };
 	float yDir{ yPos / mag };
 
@@ -154,10 +154,10 @@ void Game::ClearBackground( ) const
 	glClear( GL_COLOR_BUFFER_BIT );
 }
 
-float Game::CalcMagnitude()
+float Game::CalcMagnitude(const Point2f& otherPoint)
 {
-	float xPos{ m_MousePos.x - m_Player->GetPos().x};
-	float yPos = { m_MousePos.y - m_Player->GetPos().y };
+	float xPos{ otherPoint.x - m_Player->GetPos().x};
+	float yPos = { otherPoint.y - m_Player->GetPos().y };
 
 	return float(sqrt((xPos * xPos) + (yPos * yPos)));
 }
@@ -168,7 +168,7 @@ void Game::UpdateEnemyDir(float elapsedSec)
 	{
 		float xPos{ m_Enemies.at(j)->GetPos().x - m_Player->GetPos().x };
 		float yPos{ m_Enemies.at(j)->GetPos().y - m_Player->GetPos().y };
-		float mag{ CalcMagnitude() };
+		float mag{ CalcMagnitude(m_Enemies.at(j)->GetPos()) };
 		float xDir{ xPos / mag };
 		float yDir{ yPos / mag };
 
