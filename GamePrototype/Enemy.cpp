@@ -6,7 +6,7 @@
 
 using namespace utils;
 
-Enemy::Enemy(Point2f pos, int health) : m_Pos{pos}, m_Health{health}, m_DirectionVector{}, m_Speed{70.f}
+Enemy::Enemy(Point2f pos, int health, EnemyType type, float radius) : m_Pos{ pos }, m_Health{ health }, m_DirectionVector{}, m_Speed{ 70.f }, m_EnemyType{ type }, m_DrawThingy{ true }, m_Radius{ radius }
 {}
 
 void Enemy::Update(float elapsedSec)
@@ -20,8 +20,7 @@ void Enemy::Draw()
 	glPushMatrix();
 	{
 		glTranslatef(m_Pos.x, m_Pos.y, 0.f);
-		SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
-		FillTriangle(Point2f{ 0.f, -17.f }, Point2f{ 7.5f, -26.f }, Point2f{ -7.5f, -26.f });
+		if (m_DrawThingy) FillTriangle(Point2f{ 0.f, - m_Radius / 2 + 2.f }, Point2f{ 7.5f, - m_Radius - 6.f }, Point2f{ -7.5f, -m_Radius - 6.f });
 		FillEllipse(Point2f{}, m_Radius, m_Radius);
 	}
 	glPopMatrix();
@@ -47,10 +46,16 @@ void Enemy::GotHit()
 {
 	std::cout << "HELP" << std::endl;
 	m_Health -= 1;
+	m_Radius -= 5.f;
 }
 
 int Enemy::GetHealth()
 {
 	return m_Health;
+}
+
+Enemy::EnemyType Enemy::GetEnemyType()
+{
+	return m_EnemyType;
 }
 

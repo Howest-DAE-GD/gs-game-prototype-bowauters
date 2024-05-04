@@ -5,6 +5,8 @@
 #include "Bullet.h"
 #include "Enemy.h"
 #include "Texture.h"
+#include "NormalEnemy.h"
+#include "ExplodingEnemy.h"
 
 #include "utils.h"
 #include <iostream>
@@ -26,14 +28,28 @@ void Game::Initialize( )
 {
 	m_Player = new Player();
 	m_GameOverTexture = new Texture("Game Over!", "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
+	m_GameOverTexture2 = new Texture("Press enter to start again or ESC to quit!", "Fonts/DIN-Light.otf", 50, Color4f{ 1.f, 1.f, 1.f, 1.f });
 
 	m_AmountOfWaves = 1;
 	m_WaveTexture = new Texture("Wave " + std::to_string(m_AmountOfWaves), "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
 	m_ShowWaveTextureBig = true;
+
+	m_GameOver = false;
 }
 
 void Game::Cleanup()
 {
+	m_AmountOfWaves = 0;
+	m_BulletsShot = 0;
+
+	if (m_Enemies.size() > 0)
+	{
+		m_Enemies.clear();
+	}
+
+	delete m_GameOverTexture;
+	delete m_WaveTexture;
+
 	delete m_Player;
 	for (int i{}; i < m_Bullets.size(); ++i)
 	{
@@ -52,6 +68,25 @@ void Game::Update( float elapsedSec )
 {
 	if (!m_GameOver)
 	{
+		if (m_Enemies.size() <= 0)
+		{
+			m_TimeBetweenWaves += elapsedSec;
+		}
+
+		if (m_TimeBetweenWaves >= 3.f)
+		{
+			if (m_AmountOfWaves == 1)
+			{
+				AddBalloons(5);
+			}
+			else
+			{
+				AddBalloons(7);
+			}
+			m_ShowWaveTextureBig = false;
+			m_TimeBetweenWaves = 0.f;
+		}
+
 		m_TimeBetweenPlaceBullets += elapsedSec;
 		m_TimeBetweenPlaceHealth += elapsedSec;
 
@@ -74,25 +109,6 @@ void Game::Update( float elapsedSec )
 			delete m_WaveTexture;
 			m_WaveTexture = new Texture("Wave " + std::to_string(m_AmountOfWaves), "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
 			m_ShowWaveTextureBig = true;
-		}
-
-		if (m_Enemies.size() <= 0)
-		{
-			m_TimeBetweenWaves += elapsedSec;
-		}
-
-		if (m_TimeBetweenWaves >= 3.f)
-		{
-			if (m_AmountOfWaves == 1)
-			{
-				AddBalloons(5);
-			}
-			else
-			{
-				AddBalloons(7);
-			}
-			m_ShowWaveTextureBig = false;
-			m_TimeBetweenWaves = 0.f;
 		}
 
 		UpdateEnemyDir(elapsedSec);
@@ -171,13 +187,30 @@ void Game::Draw() const
 	}
 	else 
 	{
-		m_GameOverTexture->Draw(Rectf{ GetViewPort().width / 2 - m_GameOverTexture->GetWidth() / 2, GetViewPort().height / 2 - m_GameOverTexture->GetHeight() / 2, m_GameOverTexture->GetWidth(), m_GameOverTexture->GetHeight()});
+		m_GameOverTexture->Draw(Rectf{ GetViewPort().width / 2 - m_GameOverTexture->GetWidth() / 2, GetViewPort().height / 2 + m_GameOverTexture->GetHeight() / 2, m_GameOverTexture->GetWidth(), m_GameOverTexture->GetHeight()});
+		m_GameOverTexture2->Draw(Rectf{ GetViewPort().width / 2 - m_GameOverTexture2->GetWidth() / 2, GetViewPort().height / 2 - m_GameOverTexture2->GetHeight(), m_GameOverTexture2->GetWidth(), m_GameOverTexture2->GetHeight()});
 	}
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
 	m_Player->ProcessKeyDownEvent(e);
+
+	switch (e.keysym.sym)
+	{
+	case SDLK_RETURN:
+		if (m_GameOver)
+		{
+			Cleanup();
+			Initialize();
+		}
+		break;
+	case SDLK_ESCAPE:
+		//SDL_Quit();
+		break;
+	default:
+		break;
+	}
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
@@ -281,12 +314,36 @@ void Game::CheckHit()
 
 	for (int j{}; j < m_Enemies.size(); ++j)
 	{
-		if (m_Enemies.at(j)->GetHealth() == 0)
+		bool blub{};
+
+		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Exploding and m_Enemies.at(j)->GetHealth() == 0)
 		{
-			delete m_Enemies.at(j);
-			m_Enemies.at(j) = nullptr;
-			m_Enemies.erase(m_Enemies.begin() + j);
+			ExplodingEnemy* test{ static_cast<ExplodingEnemy*> (m_Enemies.at(j)) };
+
+			if (!test->GetStartExplosion())
+			{
+				test->TriggerExplosion();
+			}
+
+			if (test->GetExploded())
+			{
+				delete m_Enemies.at(j);
+				m_Enemies.at(j) = nullptr;
+				m_Enemies.erase(m_Enemies.begin() + j);
+
+				blub = true;
+			}
 		}
+
+		if (!blub)
+		{
+			if (m_Enemies.at(j)->GetHealth() == 0 and m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Normal)
+			{
+				delete m_Enemies.at(j);
+				m_Enemies.at(j) = nullptr;
+				m_Enemies.erase(m_Enemies.begin() + j);
+			}
+		}		
 	}
 
 	for (int j{}; j < m_Enemies.size(); ++j)
@@ -303,10 +360,21 @@ void Game::CheckHit()
 
 void Game::AddBalloons(int amount)
 {
-	for (int i{}; i < amount; ++i)
+	if (m_AmountOfWaves % 5 != 0)
 	{
-		m_Enemies.push_back(new Enemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, 1));
+		for (int i{}; i < amount; ++i)
+		{
+			m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+		}
 	}
+	else
+	{
+		for (int i{}; i < amount; ++i)
+		{
+			m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+		}
+	}
+	
 }
 
 void Game::DeleteBulletsOutOfBounds()

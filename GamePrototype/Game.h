@@ -34,6 +34,7 @@ private:
 	Point2f m_MousePos{};
 	Enemy* m_Enemy{};
 	Texture* m_GameOverTexture{};
+	Texture* m_GameOverTexture2{};
 	Texture* m_WaveTexture{};
 
 	bool m_EnemyDead{};
