@@ -6,6 +6,7 @@
 class Player;
 class Bullet;
 class Enemy;
+class Texture;
 class Game : public BaseGame
 {
 public:
@@ -32,11 +33,25 @@ private:
 	Player* m_Player{};
 	Point2f m_MousePos{};
 	Enemy* m_Enemy{};
+	Texture* m_GameOverTexture{};
+	Texture* m_WaveTexture{};
 
 	bool m_EnemyDead{};
+	bool m_GameOver{};
+	bool m_ShowWaveTextureBig{};
+
+	float m_TimeBetweenWaves{};
+	float m_TimeBetweenPlaceBullets{};
+	float m_TimeBetweenPlaceHealth{};
+
+	int m_AmountOfWaves{};
+	int m_MaxAmountOfBullets{15};
+	int m_BulletsShot{};
 
 	std::vector<Bullet*> m_Bullets{};
 	std::vector<Enemy*> m_Enemies{};
+	std::vector<Ellipsef> m_PickUpBullets{};
+	std::vector<Ellipsef> m_PickUpHealth{};
 
 	// FUNCTIONS
 	void Initialize();
@@ -47,4 +62,7 @@ private:
 
 	void CheckHit();
 	void AddBalloons(int amount);
+	void DeleteBulletsOutOfBounds();
+	void PlaceDownBullets();
+	void PickUpBullets();
 };

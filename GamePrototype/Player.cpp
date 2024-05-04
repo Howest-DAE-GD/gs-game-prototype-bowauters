@@ -89,6 +89,11 @@ int Player::GetHealth()
 	return m_Health;
 }
 
+void Player::IncreaseHealth()
+{
+	++m_Health;
+}
+
 Circlef Player::GetCircle()
 {
 	Circlef c{ m_Pos, m_Radius };

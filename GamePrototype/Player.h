@@ -16,6 +16,7 @@ public:
 
 	const Point2f& GetPos();
 	int GetHealth();
+	void IncreaseHealth();
 	Circlef GetCircle();
 	void GotHit();
 
