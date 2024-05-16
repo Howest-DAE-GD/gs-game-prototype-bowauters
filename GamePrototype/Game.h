@@ -40,6 +40,7 @@ private:
 	bool m_EnemyDead{};
 	bool m_GameOver{};
 	bool m_ShowWaveTextureBig{};
+	bool m_PlayerHitByGoo{};
 
 	float m_TimeBetweenWaves{};
 	float m_TimeBetweenPlaceBullets{};

@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "NormalEnemy.h"
 #include "ExplodingEnemy.h"
+#include "GooEnemy.h"
 
 #include "utils.h"
 #include <iostream>
@@ -40,12 +41,7 @@ void Game::Initialize( )
 void Game::Cleanup()
 {
 	m_AmountOfWaves = 0;
-	m_BulletsShot = 0;
-
-	if (m_Enemies.size() > 0)
-	{
-		m_Enemies.clear();
-	}
+	m_BulletsShot = 0;     
 
 	delete m_GameOverTexture;
 	delete m_WaveTexture;
@@ -62,14 +58,19 @@ void Game::Cleanup()
 		delete m_Enemies.at(j);
 		m_Enemies.at(j) = nullptr;
 	}
+
+	m_Enemies.clear();
+	m_PickUpBullets.clear();
+	m_PickUpHealth.clear();
 }
 
 void Game::Update( float elapsedSec )
 {
 	if (!m_GameOver)
 	{
-		if (m_Enemies.size() <= 0)
+		if (m_Enemies.size() <= 0 or (m_Enemies.at(0)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(0)->GetHealth() == 0 and m_Enemies.size() == 1))
 		{
+			std::cout << "Hello time elapse\n";
 			m_TimeBetweenWaves += elapsedSec;
 		}
 
@@ -109,6 +110,18 @@ void Game::Update( float elapsedSec )
 			delete m_WaveTexture;
 			m_WaveTexture = new Texture("Wave " + std::to_string(m_AmountOfWaves), "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
 			m_ShowWaveTextureBig = true;
+		}
+
+		if (m_Enemies.size())
+		{
+			if (m_Enemies.at(0)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(0)->GetHealth() == 0 and m_Enemies.size() == 1 and !m_ShowWaveTextureBig)
+			{
+				++m_AmountOfWaves;
+				m_TimeBetweenWaves += elapsedSec;
+				delete m_WaveTexture;
+				m_WaveTexture = new Texture("Wave " + std::to_string(m_AmountOfWaves), "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
+				m_ShowWaveTextureBig = true;
+			}
 		}
 
 		UpdateEnemyDir(elapsedSec);
@@ -301,7 +314,7 @@ void Game::CheckHit()
 	{
 		for (int i{}; i < m_Bullets.size(); ++i)
 		{
-			if (IsOverlapping(m_Bullets.at(i)->GetCircle(), m_Enemies.at(j)->GetCircle()))
+			if (IsOverlapping(m_Bullets.at(i)->GetCircle(), m_Enemies.at(j)->GetCircle()) and m_Enemies.at(j)->GetHealth() > 0)
 			{
 				std::cout << "Got hit" << std::endl;
 				m_Enemies.at(j)->GotHit();
@@ -327,9 +340,26 @@ void Game::CheckHit()
 
 			if (test->GetExploded())
 			{
-				delete m_Enemies.at(j);
-				m_Enemies.at(j) = nullptr;
-				m_Enemies.erase(m_Enemies.begin() + j);
+				m_Enemies.at(j)->SetDrawEnemy(false);
+
+				blub = true;
+			}
+		}
+
+		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(j)->GetHealth() == 0)
+		{
+			GooEnemy* test{ static_cast<GooEnemy*> (m_Enemies.at(j)) };
+			std::cout << "TriggerGoo\n";
+
+			if (!test->GetTriggerGoo())
+			{
+				test->TriggerGoo();
+			}
+
+			if (test->GetGooGone())
+			{
+				m_Enemies.at(j)->SetDrawEnemy(false);
+
 
 				blub = true;
 			}
@@ -339,34 +369,67 @@ void Game::CheckHit()
 		{
 			if (m_Enemies.at(j)->GetHealth() == 0 and m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Normal)
 			{
-				delete m_Enemies.at(j);
-				m_Enemies.at(j) = nullptr;
-				m_Enemies.erase(m_Enemies.begin() + j);
+				m_Enemies.at(j)->SetDrawEnemy(false);
+
 			}
-		}		
+		}
 	}
+
 
 	for (int j{}; j < m_Enemies.size(); ++j)
 	{
 		if (IsOverlapping(m_Player->GetCircle(), m_Enemies.at(j)->GetCircle()))
 		{
-			m_Player->GotHit();
-			delete m_Enemies.at(j);
-			m_Enemies.at(j) = nullptr;
-			m_Enemies.erase(m_Enemies.begin() + j);
+
+			if (!m_PlayerHitByGoo) m_Player->GotHit();
+
+			if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo) m_PlayerHitByGoo = true;
+
+			std::cout << m_PlayerHitByGoo << std::endl;
+
+
+			if (m_Enemies.at(j)->GetEnemyType() != Enemy::Goo)
+			{
+				m_Enemies.at(j)->SetDrawEnemy(false);
+			}
+		}
+
+		//std::cout << m_PlayerHitByGoo << std::endl;
+
+		if (!IsOverlapping(m_Player->GetCircle(), m_Enemies.at(j)->GetCircle()))
+		{
+			if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo) m_PlayerHitByGoo = false;
 		}
 	}
+
+	for (int j{}; j < m_Enemies.size(); ++j)
+	{
+		if (!m_Enemies.at(j)->GetDrawEnemy())
+		{
+			delete m_Enemies.at(j);
+			m_Enemies.at(j) = nullptr;
+		}
+	}
+	m_Enemies.erase(std::remove_if(m_Enemies.begin(), m_Enemies.end(), [](Enemy* coin) { return coin == nullptr; }), m_Enemies.end());
 }
 
 void Game::AddBalloons(int amount)
 {
-	if (m_AmountOfWaves % 5 != 0)
+	if (m_AmountOfWaves == 1)
+	{
+		m_Enemies.push_back(new GooEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+	}
+	/*else if (m_AmountOfWaves % 5 != 0)
 	{
 		for (int i{}; i < amount; ++i)
 		{
 			m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
 		}
-	}
+	}*/
+	/*if (m_AmountOfWaves % 10 == 0)
+	{
+		m_Enemies.push_back(new GooEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+	}*/
 	else
 	{
 		for (int i{}; i < amount; ++i)

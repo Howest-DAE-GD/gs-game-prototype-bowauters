@@ -5,7 +5,7 @@
 class Enemy
 {
 public:
-	enum EnemyType { Normal, Exploding };
+	enum EnemyType { Normal, Exploding, Goo };
 
 	Enemy(Point2f pos, int health, EnemyType type, float radius);
 
@@ -19,7 +19,8 @@ public:
 	int GetHealth();
 
 	EnemyType GetEnemyType();
-
+	void SetDrawEnemy(bool val);
+	bool GetDrawEnemy();
 
 private:
 	EnemyType m_EnemyType;
@@ -34,6 +35,7 @@ protected:
 	float m_Radius{ 20.f };
 
 	bool m_DrawThingy;
-
+	bool m_Update{ true };
+	bool m_DrawEnemy{ true };
 };
 
