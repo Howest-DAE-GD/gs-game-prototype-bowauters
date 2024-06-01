@@ -92,7 +92,8 @@ void Game::Update( float elapsedSec )
 			}
 			else
 			{
-				AddBalloons(7);
+				int temp{ rand() % 7 + 7 };
+				AddBalloons(temp);
 			}
 			m_ShowWaveTextureBig = false;
 			m_TimeBetweenWaves = 0.f;
@@ -173,7 +174,14 @@ void Game::Draw() const
 		}
 
 		SetColor(Color4f{ 0.5f, 0.5f, 0.5f, 1.f });
-		FillRect(GetViewPort().width - 40.f - 25.f * m_MaxAmountOfBullets, 45.f - 15.f, 26.f * m_MaxAmountOfBullets, 30.f);
+		if (m_BulletsShot >= 0)
+		{
+			FillRect(GetViewPort().width - 40.f - 25.f * m_MaxAmountOfBullets, 45.f - 15.f, 26.f * m_MaxAmountOfBullets, 30.f);
+		}
+		else
+		{
+			FillRect(GetViewPort().width - 40.f - 25.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)), 45.f - 15.f, 26.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)), 30.f);
+		}
 
 		SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
 		for (int i{}; i < m_MaxAmountOfBullets - m_BulletsShot; ++i)
@@ -399,7 +407,6 @@ void Game::CheckHit()
 			{
 				m_Enemies.at(j)->SetDrawEnemy(false);
 
-
 				blub = true;
 			}
 		}
@@ -409,7 +416,6 @@ void Game::CheckHit()
 			if (m_Enemies.at(j)->GetHealth() == 0 and m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Normal)
 			{
 				m_Enemies.at(j)->SetDrawEnemy(false);
-
 			}
 		}
 	}
@@ -433,7 +439,6 @@ void Game::CheckHit()
 			}
 		}
 
-
 		if (!IsOverlapping(m_Player->GetCircle(), m_Enemies.at(j)->GetCircle()) and !m_Enemies.at(j)->GetDrawEnemy())
 		{
 			if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo) m_PlayerHitByGoo = false;
@@ -453,15 +458,27 @@ void Game::CheckHit()
 
 void Game::AddBalloons(int amount)
 {
-	/*if (m_AmountOfWaves == 1)
-	{
-		m_Enemies.push_back(new GooEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
-	}*/
 	if (m_AmountOfWaves % 5 != 0)
 	{
-		for (int i{}; i < amount; ++i)
+		if (m_AmountOfWaves == 1 or m_AmountOfWaves == 2)
 		{
-			m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+			for (int i{}; i < amount; ++i)
+			{
+				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+			}
+		}
+		else
+		{
+			int temp{ rand() % (amount - 2) };
+
+			for (int i{}; i < amount - temp; ++i)
+			{
+				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+			}
+			for (int i{}; i < temp; ++i)
+			{
+				m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+			}
 		}
 	}
 	else if (m_AmountOfWaves % 10 == 0)
@@ -536,7 +553,7 @@ void Game::PickUpBullets()
 	{
 		if (IsOverlapping(m_Player->GetCircle(), Circlef{ m_PickUpPowerUp.at(i).center, m_PickUpPowerUp.at(i).radiusX }))
 		{
-			m_BulletsShot = 0;
+			if (m_BulletsShot >= 0)	m_BulletsShot = 0;
 			m_PickUpPowerUp.erase(m_PickUpPowerUp.begin() + i);
 		}
 	}
