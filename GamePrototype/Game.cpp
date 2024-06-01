@@ -49,6 +49,13 @@ void Game::Cleanup()
 	m_BulletsShot = 0;     
 
 	delete m_GameOverTexture;
+	delete m_GameOverTexture2;
+	delete m_IntroTexture;
+	delete m_IntroTexture2;
+	delete m_IntroTexture3;
+	delete m_IntroTexture4;
+	delete m_IntroTexture5;
+
 	delete m_WaveTexture;
 
 	delete m_Player;
