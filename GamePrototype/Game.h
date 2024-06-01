@@ -35,16 +35,23 @@ private:
 	Enemy* m_Enemy{};
 	Texture* m_GameOverTexture{};
 	Texture* m_GameOverTexture2{};
+	Texture* m_IntroTexture{};
+	Texture* m_IntroTexture2{};
+	Texture* m_IntroTexture3{};
+	Texture* m_IntroTexture4{};
+	Texture* m_IntroTexture5{};
 	Texture* m_WaveTexture{};
 
 	bool m_EnemyDead{};
 	bool m_GameOver{};
 	bool m_ShowWaveTextureBig{};
 	bool m_PlayerHitByGoo{};
+	bool m_GameStart{};
 
 	float m_TimeBetweenWaves{};
 	float m_TimeBetweenPlaceBullets{};
 	float m_TimeBetweenPlaceHealth{};
+	float m_TimeGameIntro{};
 
 	int m_AmountOfWaves{};
 	int m_MaxAmountOfBullets{15};
