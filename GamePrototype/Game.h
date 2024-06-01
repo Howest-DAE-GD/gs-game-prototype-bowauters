@@ -51,6 +51,7 @@ private:
 	float m_TimeBetweenWaves{};
 	float m_TimeBetweenPlaceBullets{};
 	float m_TimeBetweenPlaceHealth{};
+	float m_TimeBetweenPlacePowerUp{};
 	float m_TimeGameIntro{};
 
 	int m_AmountOfWaves{};
@@ -61,6 +62,7 @@ private:
 	std::vector<Enemy*> m_Enemies{};
 	std::vector<Ellipsef> m_PickUpBullets{};
 	std::vector<Ellipsef> m_PickUpHealth{};
+	std::vector<Ellipsef> m_PickUpPowerUp{};
 
 	// FUNCTIONS
 	void Initialize();

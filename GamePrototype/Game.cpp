@@ -100,6 +100,7 @@ void Game::Update( float elapsedSec )
 
 		m_TimeBetweenPlaceBullets += elapsedSec;
 		m_TimeBetweenPlaceHealth += elapsedSec;
+		m_TimeBetweenPlacePowerUp += elapsedSec;
 
 		m_Player->Update(elapsedSec);
 
@@ -191,6 +192,12 @@ void Game::Draw() const
 			FillEllipse(m_PickUpHealth.at(i));
 		}
 
+		SetColor(Color4f{ 0.f, 0.f, 1.f, 1.f });
+		for (int i{}; i < m_PickUpPowerUp.size(); ++i)
+		{
+			FillEllipse(m_PickUpPowerUp.at(i));
+		}
+
 		for (int j{}; j < m_Enemies.size(); ++j)
 		{
 			m_Enemies.at(j)->Draw();
@@ -237,6 +244,10 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 		{
 			Cleanup();
 			Initialize();
+		}
+		if (!m_GameStart)
+		{
+			m_GameStart = true;
 		}
 		break;
 	case SDLK_ESCAPE:
@@ -331,15 +342,21 @@ void Game::UpdateEnemyDir(float elapsedSec)
 
 void Game::CheckHit()
 {
-	std::cout << "Test\n";
 	for (int j{}; j < m_Enemies.size(); ++j)
 	{
 		for (int i{}; i < m_Bullets.size(); ++i)
 		{
 			if (IsOverlapping(m_Bullets.at(i)->GetCircle(), m_Enemies.at(j)->GetCircle()) and m_Enemies.at(j)->GetHealth() > 0 and m_Enemies.at(j)->GetDrawEnemy())
 			{
-				std::cout << "Got hit" << std::endl;
 				m_Enemies.at(j)->GotHit();
+
+				int temp{ rand() % 15 };
+				if (temp == 1)
+				{
+					m_PickUpPowerUp.push_back(Ellipsef{ m_Enemies.at(j)->GetPos().x, m_Enemies.at(j)->GetPos().y, 10.f, 10.f});
+					m_TimeBetweenPlacePowerUp = 0;
+				}
+
 				delete m_Bullets.at(i);
 				m_Bullets.at(i) = nullptr;
 				m_Bullets.erase(m_Bullets.begin() + i);
@@ -487,6 +504,12 @@ void Game::PlaceDownBullets()
 		m_PickUpHealth.push_back(Ellipsef{ rand() % 1200 * 1.f, rand() % 700 * 1.f, 10.f, 10.f });
 		m_TimeBetweenPlaceHealth = 0;
 	}
+
+	if (m_BulletsShot > 0 and m_TimeBetweenPlacePowerUp >= 15.f)
+	{
+		m_PickUpPowerUp.push_back(Ellipsef{ rand() % 1200 * 1.f, rand() % 700 * 1.f, 10.f, 10.f });
+		m_TimeBetweenPlacePowerUp = 0;
+	}
 }
 
 void Game::PickUpBullets()
@@ -506,6 +529,15 @@ void Game::PickUpBullets()
 		{
 			m_Player->IncreaseHealth();
 			m_PickUpHealth.erase(m_PickUpHealth.begin() + i);
+		}
+	}
+
+	for (int i{}; i < m_PickUpPowerUp.size(); ++i)
+	{
+		if (IsOverlapping(m_Player->GetCircle(), Circlef{ m_PickUpPowerUp.at(i).center, m_PickUpPowerUp.at(i).radiusX }))
+		{
+			m_BulletsShot = 0;
+			m_PickUpPowerUp.erase(m_PickUpPowerUp.begin() + i);
 		}
 	}
 }

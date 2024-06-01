@@ -41,7 +41,7 @@ void GooEnemy::Draw()
 	}
 	else
 	{
-		SetColor(Color4f{ 0.f, 1.f, 0.f, 0.7f });
+		SetColor(Color4f{ 0.f, 1.f, 0.f, 0.8f });
 	}
 
 	Enemy::Draw();
