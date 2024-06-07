@@ -5,7 +5,7 @@
 class Bullet
 {
 public:
-	Bullet(Point2f pos, Vector2f direction);
+	Bullet(Point2f pos, Vector2f direction, float speed);
 
 	void Update(float elapsedSec);
 	void Draw();

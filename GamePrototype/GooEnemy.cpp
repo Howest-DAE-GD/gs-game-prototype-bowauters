@@ -5,8 +5,8 @@
 
 using namespace utils;
 
-GooEnemy::GooEnemy(Point2f pos)
-	: Enemy(pos, 11, Enemy::EnemyType::Goo, 80.f)
+GooEnemy::GooEnemy(Point2f pos, float speed)
+	: Enemy(pos, 11, Enemy::EnemyType::Goo, 80.f, speed)
 {}
 
 void GooEnemy::Update(float elapsedSec)

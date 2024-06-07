@@ -5,7 +5,7 @@
 
 using namespace utils;
 
-ExplodingEnemy::ExplodingEnemy(Point2f pos) : Enemy(pos, 2, Enemy::EnemyType::Exploding, 30.f)
+ExplodingEnemy::ExplodingEnemy(Point2f pos, float speed) : Enemy(pos, 2, Enemy::EnemyType::Exploding, 30.f, speed)
 {}
 
 void ExplodingEnemy::Update(float elapsedSec)

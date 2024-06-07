@@ -5,7 +5,7 @@
 class GooEnemy : public Enemy
 {
 public:
-	GooEnemy(Point2f pos);
+	GooEnemy(Point2f pos, float speed);
 
 	virtual void Update(float elapsedSec);
 	virtual void Draw();

@@ -105,6 +105,11 @@ void Player::GotHit()
 	m_Health -= 1;
 }
 
+void Player::ChangeSpeed()
+{
+	m_Speed *= 1.25f;
+}
+
 void Player::ChangeDirection()
 {
 	m_DirectionVector = Vector2f{};

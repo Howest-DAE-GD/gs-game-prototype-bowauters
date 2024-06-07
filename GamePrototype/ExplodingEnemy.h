@@ -4,7 +4,7 @@
 class ExplodingEnemy : public Enemy
 {
 public:
-	ExplodingEnemy(Point2f pos);
+	ExplodingEnemy(Point2f pos, float speed);
 
 	virtual void Update(float elapsedSec);
 	virtual void Draw();

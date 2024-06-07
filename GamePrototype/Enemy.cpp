@@ -6,9 +6,8 @@
 
 using namespace utils;
 
-Enemy::Enemy(Point2f pos, int health, EnemyType type, float radius) : m_Pos{ pos }, m_Health{ health }, m_DirectionVector{}, m_Speed{ rand() % 300 / 10.f + 65.f}, m_EnemyType{type}, m_DrawThingy{true}, m_Radius{radius}
+Enemy::Enemy(Point2f pos, int health, EnemyType type, float radius, float speed) : m_Pos{ pos }, m_Health{ health }, m_DirectionVector{}, m_Speed{ rand() % 300 / 10.f + speed}, m_EnemyType{type}, m_DrawThingy{true}, m_Radius{radius}
 {
-	std::cout << m_Speed << std::endl;
 }
 
 void Enemy::Update(float elapsedSec)
@@ -52,7 +51,6 @@ Circlef Enemy::GetCircle()
 
 void Enemy::GotHit()
 {
-	std::cout << "HELP" << std::endl;
 	m_Health -= 1;
 	m_Radius -= 5.f;
 }

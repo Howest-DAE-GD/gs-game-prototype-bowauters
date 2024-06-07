@@ -47,12 +47,16 @@ private:
 	bool m_ShowWaveTextureBig{};
 	bool m_PlayerHitByGoo{};
 	bool m_GameStart{};
+	bool m_ChangedSpeed{};
+	bool m_InfoGooEnemy{};
 
 	float m_TimeBetweenWaves{};
 	float m_TimeBetweenPlaceBullets{};
 	float m_TimeBetweenPlaceHealth{};
 	float m_TimeBetweenPlacePowerUp{};
 	float m_TimeGameIntro{};
+	float m_SpeedEnemies{ 65.f };
+	float m_SpeedBullets{ 250.f };
 
 	int m_AmountOfWaves{};
 	int m_MaxAmountOfBullets{15};

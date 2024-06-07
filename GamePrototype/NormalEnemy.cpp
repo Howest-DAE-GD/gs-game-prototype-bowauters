@@ -5,7 +5,7 @@
 
 using namespace utils;
 
-NormalEnemy::NormalEnemy(Point2f pos) : Enemy(pos, 1, Enemy::EnemyType::Normal, 20.f)
+NormalEnemy::NormalEnemy(Point2f pos, float speed) : Enemy(pos, 1, Enemy::EnemyType::Normal, 20.f, speed)
 {}
 
 void NormalEnemy::Draw()

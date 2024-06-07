@@ -4,7 +4,7 @@
 #include "utils.h"
 using namespace utils;
 
-Bullet::Bullet(Point2f pos, Vector2f direction) : m_Pos{ pos }, m_DirectionVector{ direction }, m_Speed{ 250.f }
+Bullet::Bullet(Point2f pos, Vector2f direction, float speed) : m_Pos{ pos }, m_DirectionVector{ direction }, m_Speed{ speed }
 {}
 
 void Bullet::Update(float elapsedSec)

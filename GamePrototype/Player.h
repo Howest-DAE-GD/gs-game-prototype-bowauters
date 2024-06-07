@@ -19,6 +19,7 @@ public:
 	void IncreaseHealth();
 	Circlef GetCircle();
 	void GotHit();
+	void ChangeSpeed();
 
 
 private:

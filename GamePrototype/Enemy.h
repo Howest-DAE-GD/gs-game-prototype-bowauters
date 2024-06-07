@@ -7,7 +7,7 @@ class Enemy
 public:
 	enum EnemyType { Normal, Exploding, Goo };
 
-	Enemy(Point2f pos, int health, EnemyType type, float radius);
+	Enemy(Point2f pos, int health, EnemyType type, float radius, float speed);
 
 	virtual void Update(float elapsedSec);
 	virtual void Draw();

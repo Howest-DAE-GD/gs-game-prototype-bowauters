@@ -41,6 +41,16 @@ void Game::Initialize( )
 	m_ShowWaveTextureBig = true;
 
 	m_GameOver = false;
+
+	std::cout << "Pick up colours: \n";
+	std::cout << "- White: Bullet\n";
+	std::cout << "- Green: Health pack\n";
+	std::cout << "- Blue: Refresh of bullets\n";
+
+	std::cout << "\n";
+	std::cout << "\n";
+
+
 }
 
 void Game::Cleanup()
@@ -104,6 +114,24 @@ void Game::Update( float elapsedSec )
 			}
 			m_ShowWaveTextureBig = false;
 			m_TimeBetweenWaves = 0.f;
+		}
+
+		if (m_AmountOfWaves % 5 == 0 and !m_ChangedSpeed)
+		{
+			m_Player->ChangeSpeed();
+			m_ChangedSpeed = true;
+			m_SpeedEnemies *= 1.25f;
+			m_SpeedBullets *= 1.25f;
+		}
+		else if (m_AmountOfWaves % 5 != 0)
+		{
+			m_ChangedSpeed = false;
+		}
+
+		if (m_AmountOfWaves % 10 == 0 and !m_InfoGooEnemy)
+		{
+			m_InfoGooEnemy = true;
+			std::cout << "Congrats on making it to wave 10. \nThis is a very special enemy. \nIt will Leave a pool of goo behind after you kill it\n";
 		}
 
 		m_TimeBetweenPlaceBullets += elapsedSec;
@@ -297,7 +325,7 @@ void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 	case SDL_BUTTON_LEFT:
 		if (m_BulletsShot < m_MaxAmountOfBullets)
 		{
-			m_Bullets.push_back(new Bullet(m_Player->GetPos(), Vector2f{ xDir, yDir }));
+			m_Bullets.push_back(new Bullet(m_Player->GetPos(), Vector2f{ xDir, yDir }, m_SpeedBullets));
 			++m_BulletsShot;
 		}
 		break;
@@ -403,7 +431,6 @@ void Game::CheckHit()
 		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(j)->GetHealth() == 0)
 		{
 			GooEnemy* test{ static_cast<GooEnemy*> (m_Enemies.at(j)) };
-			std::cout << "TriggerGoo\n";
 
 			if (!test->GetTriggerGoo())
 			{
@@ -437,9 +464,6 @@ void Game::CheckHit()
 
 			if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo) m_PlayerHitByGoo = true;
 
-			std::cout << m_PlayerHitByGoo << std::endl;
-
-
 			if (m_Enemies.at(j)->GetEnemyType() != Enemy::Goo)
 			{
 				m_Enemies.at(j)->SetDrawEnemy(false);
@@ -471,7 +495,7 @@ void Game::AddBalloons(int amount)
 		{
 			for (int i{}; i < amount; ++i)
 			{
-				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, m_SpeedEnemies));
 			}
 		}
 		else
@@ -480,23 +504,23 @@ void Game::AddBalloons(int amount)
 
 			for (int i{}; i < amount - temp; ++i)
 			{
-				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+				m_Enemies.push_back(new NormalEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, m_SpeedEnemies));
 			}
 			for (int i{}; i < temp; ++i)
 			{
-				m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+				m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, m_SpeedEnemies));
 			}
 		}
 	}
 	else if (m_AmountOfWaves % 10 == 0)
 	{
-		m_Enemies.push_back(new GooEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+		m_Enemies.push_back(new GooEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, m_SpeedEnemies));
 	}
 	else
 	{
 		for (int i{}; i < amount; ++i)
 		{
-			m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }));
+			m_Enemies.push_back(new ExplodingEnemy(Point2f{ rand() % 800 * 1.f + 100.f, rand() % 500 * 1.f + 250.f }, m_SpeedEnemies));
 		}
 	}
 	
