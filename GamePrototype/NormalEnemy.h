@@ -1,4 +1,4 @@
-sdsdddddddddddd#pragma once
+#pragma once
 #include "Enemy.h"
 
 class NormalEnemy : public Enemy
