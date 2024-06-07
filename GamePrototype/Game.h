@@ -7,6 +7,7 @@ class Player;
 class Bullet;
 class Enemy;
 class Texture;
+class Grenade;
 class Game : public BaseGame
 {
 public:
@@ -49,11 +50,13 @@ private:
 	bool m_GameStart{};
 	bool m_ChangedSpeed{};
 	bool m_InfoGooEnemy{};
+	bool m_HasAbility{};
 
 	float m_TimeBetweenWaves{};
 	float m_TimeBetweenPlaceBullets{};
 	float m_TimeBetweenPlaceHealth{};
 	float m_TimeBetweenPlacePowerUp{};
+	float m_TimeBetweenPlaceAbility{};
 	float m_TimeGameIntro{};
 	float m_SpeedEnemies{ 65.f };
 	float m_SpeedBullets{ 250.f };
@@ -61,12 +64,15 @@ private:
 	int m_AmountOfWaves{};
 	int m_MaxAmountOfBullets{15};
 	int m_BulletsShot{};
+	int m_GrenadesInMag{};
 
 	std::vector<Bullet*> m_Bullets{};
+	std::vector<Grenade*> m_Grenades{};
 	std::vector<Enemy*> m_Enemies{};
 	std::vector<Ellipsef> m_PickUpBullets{};
 	std::vector<Ellipsef> m_PickUpHealth{};
 	std::vector<Ellipsef> m_PickUpPowerUp{};
+	std::vector<Ellipsef> m_PickUpAbility{};
 
 	// FUNCTIONS
 	void Initialize();
@@ -78,6 +84,7 @@ private:
 	void CheckHit();
 	void AddBalloons(int amount);
 	void DeleteBulletsOutOfBounds();
+	void DeleteGrenadesOutOfBounds();
 	void PlaceDownBullets();
 	void PickUpBullets();
 };

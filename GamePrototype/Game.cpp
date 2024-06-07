@@ -8,6 +8,7 @@
 #include "NormalEnemy.h"
 #include "ExplodingEnemy.h"
 #include "GooEnemy.h"
+#include "Grenade.h"
 
 #include "utils.h"
 #include <iostream>
@@ -36,6 +37,8 @@ void Game::Initialize( )
 	m_IntroTexture4 = new Texture("Stay alive for as long as possible!", "Fonts/DIN-Light.otf", 50, Color4f{ 1.f, 1.f, 1.f, 1.f });
 	m_IntroTexture5 = new Texture("Have fun!", "Fonts/DIN-Light.otf", 50, Color4f{ 1.f, 1.f, 1.f, 1.f });
 
+	m_HasAbility = true;
+
 	m_AmountOfWaves = 1;
 	m_WaveTexture = new Texture("Wave " + std::to_string(m_AmountOfWaves), "Fonts/DIN-Light.otf", 100, Color4f{ 1.f, 1.f, 1.f, 1.f });
 	m_ShowWaveTextureBig = true;
@@ -46,6 +49,7 @@ void Game::Initialize( )
 	std::cout << "- White: Bullet\n";
 	std::cout << "- Green: Health pack\n";
 	std::cout << "- Blue: Refresh of bullets\n";
+	std::cout << "- Purple: Grenade\n";
 
 	std::cout << "\n";
 	std::cout << "\n";
@@ -137,6 +141,7 @@ void Game::Update( float elapsedSec )
 		m_TimeBetweenPlaceBullets += elapsedSec;
 		m_TimeBetweenPlaceHealth += elapsedSec;
 		m_TimeBetweenPlacePowerUp += elapsedSec;
+		m_TimeBetweenPlaceAbility += elapsedSec;
 
 		m_Player->Update(elapsedSec);
 
@@ -145,6 +150,14 @@ void Game::Update( float elapsedSec )
 			for (Bullet* bullet : m_Bullets)
 			{
 				bullet->Update(elapsedSec);
+			}
+		}
+
+		if (m_Grenades.size() > 0)
+		{
+			for (Grenade* grenade : m_Grenades)
+			{
+				grenade->Update(elapsedSec);
 			}
 		}
 
@@ -182,6 +195,7 @@ void Game::Update( float elapsedSec )
 		}
 
 		DeleteBulletsOutOfBounds();
+		DeleteGrenadesOutOfBounds();
 	}
 }
 
@@ -208,22 +222,15 @@ void Game::Draw() const
 			}
 		}
 
-		SetColor(Color4f{ 0.5f, 0.5f, 0.5f, 1.f });
-		if (m_BulletsShot >= 0)
+		if (m_Grenades.size() > 0)
 		{
-			FillRect(GetViewPort().width - 40.f - 25.f * m_MaxAmountOfBullets, 45.f - 15.f, 26.f * m_MaxAmountOfBullets, 30.f);
-		}
-		else
-		{
-			FillRect(GetViewPort().width - 40.f - 25.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)), 45.f - 15.f, 26.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)), 30.f);
+			for (Grenade* grenade : m_Grenades)
+			{
+				grenade->Draw();
+			}
 		}
 
 		SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
-		for (int i{}; i < m_MaxAmountOfBullets - m_BulletsShot; ++i)
-		{
-			FillEllipse(GetViewPort().width - 45.f - 25.f * i, 45.f, 10.f, 10.f);
-		}
-
 		for (int i{}; i < m_PickUpBullets.size(); ++i)
 		{
 			FillEllipse(m_PickUpBullets.at(i));
@@ -239,6 +246,12 @@ void Game::Draw() const
 		for (int i{}; i < m_PickUpPowerUp.size(); ++i)
 		{
 			FillEllipse(m_PickUpPowerUp.at(i));
+		}
+
+		SetColor(Color4f{ .5f, 0.3f, .8f, 1.f });
+		for (int i{}; i < m_PickUpAbility.size(); ++i)
+		{
+			FillEllipse(m_PickUpAbility.at(i));
 		}
 
 		for (int j{}; j < m_Enemies.size(); ++j)
@@ -268,6 +281,31 @@ void Game::Draw() const
 			SetColor(Color4f{ 0.f, 1.f, 0.f, 1.f });
 		}
 		FillRect(Point2f{ 40.f, GetViewPort().height - 70.f }, 30.f * m_Player->GetHealth(), 30.f);
+
+		SetColor(Color4f{ 0.5f, 0.5f, 0.5f, 1.f });
+		if (m_BulletsShot >= 0)
+		{
+			FillRect(GetViewPort().width - 40.f - 25.f * m_MaxAmountOfBullets - 5.f, 45.f - 15.f, 25.f * m_MaxAmountOfBullets + 10.f, 30.f);
+		}
+		else
+		{
+			FillRect(GetViewPort().width - 40.f - 25.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)) - 5.f, 45.f - 15.f, 25.f * (m_MaxAmountOfBullets + abs(m_BulletsShot)) + 10.f, 30.f);
+		}
+
+		SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
+		for (int i{}; i < m_MaxAmountOfBullets - m_BulletsShot; ++i)
+		{
+			FillEllipse(GetViewPort().width - 50.f - 25.f * i, 45.f, 10.f, 10.f);
+		}
+
+		SetColor(Color4f{ 0.5f, 0.5f, 0.5f, 1.f });
+		FillRect(GetViewPort().width - 40.f - 25.f * m_GrenadesInMag - 5.f, 80.f - 15.f, 25.f * m_GrenadesInMag + 10.f, 30.f);
+
+		SetColor(Color4f{ .5f, 0.3f, .8f, 1.f });
+		for (int i{}; i < m_GrenadesInMag; ++i)
+		{
+			FillEllipse(GetViewPort().width - 50.f - 25.f * i, 80.f, 10.f, 10.f);
+		}
 	}
 	else 
 	{
@@ -327,6 +365,13 @@ void Game::ProcessMouseDownEvent( const SDL_MouseButtonEvent& e )
 		{
 			m_Bullets.push_back(new Bullet(m_Player->GetPos(), Vector2f{ xDir, yDir }, m_SpeedBullets));
 			++m_BulletsShot;
+		}
+		break;
+	case SDL_BUTTON_RIGHT:
+		if (m_GrenadesInMag > 0)
+		{
+			--m_GrenadesInMag;
+			m_Grenades.push_back(new Grenade(m_Player->GetPos(), Vector2f{ xDir, yDir }, m_SpeedBullets));
 		}
 		break;
 	default:
@@ -403,6 +448,43 @@ void Game::CheckHit()
 				delete m_Bullets.at(i);
 				m_Bullets.at(i) = nullptr;
 				m_Bullets.erase(m_Bullets.begin() + i);
+			}
+		}
+
+		for (int i{}; i < m_Grenades.size(); ++i)
+		{
+			if (IsOverlapping(m_Grenades.at(i)->GetCircle(), m_Enemies.at(j)->GetCircle()) and m_Enemies.at(j)->GetHealth() > 0 and m_Enemies.at(j)->GetDrawEnemy() and m_Grenades.at(i)->GetStartExplosion())
+			{
+				if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo)
+				{
+					GooEnemy* temp = static_cast<GooEnemy*>(m_Enemies.at(j));
+
+					if (!temp->GetHitByGrenade())
+					{
+						m_Enemies.at(j)->GotHit();
+						m_Enemies.at(j)->GotHit();
+						m_Enemies.at(j)->GotHit();
+						m_Enemies.at(j)->GotHit();
+						m_Enemies.at(j)->GotHit();
+						m_Enemies.at(j)->GotHit();
+						temp->SetHitByGrenade(true);
+					}
+				}
+				else
+				{
+					m_Enemies.at(j)->GotHit();
+
+					int temp{ rand() % 15 };
+					if (temp == 1)
+					{
+						m_PickUpPowerUp.push_back(Ellipsef{ m_Enemies.at(j)->GetPos().x, m_Enemies.at(j)->GetPos().y, 10.f, 10.f });
+						m_TimeBetweenPlacePowerUp = 0;
+					}
+				}
+
+				/*delete m_Grenades.at(i);
+				m_Grenades.at(i) = nullptr;
+				m_Grenades.erase(m_Grenades.begin() + i);*/
 			}
 		}
 	}
@@ -539,6 +621,29 @@ void Game::DeleteBulletsOutOfBounds()
 	}
 }
 
+void Game::DeleteGrenadesOutOfBounds()
+{
+	for (int i{}; i < m_Grenades.size(); ++i)
+	{
+		if (m_Grenades.at(i)->GetCircle().center.x < 0.f or m_Grenades.at(i)->GetCircle().center.x > GetViewPort().width or m_Grenades.at(i)->GetCircle().center.y < 0.f or m_Grenades.at(i)->GetCircle().center.y > GetViewPort().height or m_Grenades.at(i)->GetExploded())
+		{
+			delete m_Grenades.at(i);
+			m_Grenades.at(i) = nullptr;
+			m_Grenades.erase(m_Grenades.begin() + i);
+
+			for (int j{}; j < m_Enemies.size(); ++j)
+			{
+				if (m_Enemies.at(j)->GetEnemyType() == Enemy::Goo)
+				{
+					GooEnemy* temp = static_cast<GooEnemy*>(m_Enemies.at(j));
+
+					temp->SetHitByGrenade(false);
+				}
+			}
+		}
+	}
+}
+
 void Game::PlaceDownBullets()
 {
 	if (m_BulletsShot > 0 and m_TimeBetweenPlaceBullets >= 5.f)
@@ -558,6 +663,19 @@ void Game::PlaceDownBullets()
 		m_PickUpPowerUp.push_back(Ellipsef{ rand() % 1200 * 1.f, rand() % 700 * 1.f, 10.f, 10.f });
 		m_TimeBetweenPlacePowerUp = 0;
 	}
+
+	if (m_TimeBetweenPlacePowerUp >= 15.f)
+	{
+		m_PickUpPowerUp.push_back(Ellipsef{ rand() % 1200 * 1.f, rand() % 700 * 1.f, 10.f, 10.f });
+		m_TimeBetweenPlacePowerUp = 0;
+	}
+
+	if (m_TimeBetweenPlaceAbility >= 25.f)
+	{
+		m_PickUpAbility.push_back(Ellipsef{ rand() % 1200 * 1.f, rand() % 700 * 1.f, 10.f, 10.f });
+		m_TimeBetweenPlaceAbility = 0;
+	}
+
 }
 
 void Game::PickUpBullets()
@@ -586,6 +704,15 @@ void Game::PickUpBullets()
 		{
 			if (m_BulletsShot >= 0)	m_BulletsShot = 0;
 			m_PickUpPowerUp.erase(m_PickUpPowerUp.begin() + i);
+		}
+	}
+
+	for (int i{}; i < m_PickUpAbility.size(); ++i)
+	{
+		if (IsOverlapping(m_Player->GetCircle(), Circlef{ m_PickUpAbility.at(i).center, m_PickUpAbility.at(i).radiusX }))
+		{
+			++m_GrenadesInMag;
+			m_PickUpAbility.erase(m_PickUpAbility.begin() + i);
 		}
 	}
 }

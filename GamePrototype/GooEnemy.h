@@ -13,6 +13,8 @@ public:
 	void TriggerGoo();
 	bool GetTriggerGoo();
 	bool GetGooGone();
+	bool GetHitByGrenade();
+	void SetHitByGrenade(bool value);
 
 private:
 	float m_GooTimer{};
@@ -20,6 +22,7 @@ private:
 
 	bool m_TriggerGoo{};
 	bool m_GooGone{};
+	bool m_HitByGrenade{};
 
 };
 

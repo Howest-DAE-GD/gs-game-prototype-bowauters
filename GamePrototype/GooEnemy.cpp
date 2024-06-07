@@ -61,3 +61,13 @@ bool GooEnemy::GetGooGone()
 {
 	return m_GooGone;
 }
+
+bool GooEnemy::GetHitByGrenade()
+{
+	return m_HitByGrenade;
+}
+
+void GooEnemy::SetHitByGrenade(bool value)
+{
+	m_HitByGrenade = true;
+}
