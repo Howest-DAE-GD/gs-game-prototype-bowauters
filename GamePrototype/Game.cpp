@@ -45,8 +45,6 @@ void Game::Initialize( )
 
 	m_GameOver = false;
 
-	m_GrenadesInMag = 2;
-
 	std::cout << "Pick up colours: \n";
 	std::cout << "- White: Bullet\n";
 	std::cout << "- Green: Health pack\n";
@@ -512,6 +510,11 @@ void Game::CheckHit()
 		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(j)->GetHealth() <= 0)
 		{
 			GooEnemy* test{ static_cast<GooEnemy*> (m_Enemies.at(j)) };
+
+			if (!IsOverlapping(m_Player->GetCircle(), m_Enemies.at(j)->GetCircle()))
+			{
+				m_PlayerHitByGoo = false;
+			}
 
 			if (!test->GetTriggerGoo())
 			{
