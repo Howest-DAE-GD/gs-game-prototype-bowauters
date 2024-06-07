@@ -45,6 +45,8 @@ void Game::Initialize( )
 
 	m_GameOver = false;
 
+	m_GrenadesInMag = 2;
+
 	std::cout << "Pick up colours: \n";
 	std::cout << "- White: Bullet\n";
 	std::cout << "- Green: Health pack\n";
@@ -464,9 +466,6 @@ void Game::CheckHit()
 						m_Enemies.at(j)->GotHit();
 						m_Enemies.at(j)->GotHit();
 						m_Enemies.at(j)->GotHit();
-						m_Enemies.at(j)->GotHit();
-						m_Enemies.at(j)->GotHit();
-						m_Enemies.at(j)->GotHit();
 						temp->SetHitByGrenade(true);
 					}
 				}
@@ -493,7 +492,7 @@ void Game::CheckHit()
 	{
 		bool blub{};
 
-		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Exploding and m_Enemies.at(j)->GetHealth() == 0)
+		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Exploding and m_Enemies.at(j)->GetHealth() <= 0)
 		{
 			ExplodingEnemy* test{ static_cast<ExplodingEnemy*> (m_Enemies.at(j)) };
 
@@ -510,7 +509,7 @@ void Game::CheckHit()
 			}
 		}
 
-		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(j)->GetHealth() == 0)
+		if (m_Enemies.at(j)->GetEnemyType() == Enemy::EnemyType::Goo and m_Enemies.at(j)->GetHealth() <= 0)
 		{
 			GooEnemy* test{ static_cast<GooEnemy*> (m_Enemies.at(j)) };
 

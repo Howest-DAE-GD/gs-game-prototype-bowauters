@@ -5,6 +5,8 @@
 
 using namespace utils;
 
+#include <iostream>
+
 GooEnemy::GooEnemy(Point2f pos, float speed)
 	: Enemy(pos, 11, Enemy::EnemyType::Goo, 80.f, speed)
 {}
@@ -41,7 +43,7 @@ void GooEnemy::Draw()
 	}
 	else
 	{
-		SetColor(Color4f{ 0.f, 1.f, 0.f, 0.8f });
+		SetColor(Color4f{ 0.f, 1.f, 0.f, 0.4f });
 	}
 
 	Enemy::Draw();
@@ -69,5 +71,5 @@ bool GooEnemy::GetHitByGrenade()
 
 void GooEnemy::SetHitByGrenade(bool value)
 {
-	m_HitByGrenade = true;
+	m_HitByGrenade = value;
 }
